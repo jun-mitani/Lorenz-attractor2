@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+	<meta charset="utf-8">
+	<title>Lorenz attractor</title>
+<style type="text/css">
+body {
+	margin: 0;
+	padding: 0;
+}
+</style>
+<script type="text/javascript">
+// 2017.5.31  Jun Mitani
+const POINT_R = 1;
+const TIME_INTERVAL_MS = 1;
+
+var points = new Array();	
+var ctx;
+var canvas;
+var intervalID;
+
+var p = 10;
+var r = 28;
+var b = 8.0/3.0;
+var dt = 0.001;
+
+function RPoint(x, y, z) {
+	this.x = x;
+	this.y = y;
+	this.z = z;
+}
+
+RPoint.prototype.update = function() {
+	var dx = -p * this.x + p * this.y;
+	var dy = -this.x * this.z + r * this.x - this.y;
+	var dz = this.x * this.y - b * this.z;
+		
+	this.x += dx * dt;
+	this.y += dy * dt;
+	this.z += dz * dt;
+}
+	
+function drawItem() {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	for(var i = 0; i < points.length; i++) {
+		rpoint = points[i];
+		rpoint.update();
+		
+		ctx.beginPath();
+		var sx = rpoint.x * 10 + canvas.width / 2;
+		var sy = rpoint.y * 10 + canvas.height / 2;
+		ctx.arc(sx, sy, POINT_R*2, 0, Math.PI*2, true);
+		ctx.fill();			
+	}
+}
+	
+function init() {		
+	for (var i = 0; i < 1000; i++) {	
+		points.push(new RPoint(1, 1, 1 + i * 0.001));
+	}
+
+	canvas = document.getElementById("mycanvas");
+	canvas.width = window.innerWidth;;
+	canvas.height = window.innerHeight;
+		
+	if (canvas.getContext) {
+		ctx = canvas.getContext('2d');
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = 'rgba(0, 0, 0, 1.0)';
+		ctx.fillStyle = 'rgba(0, 0, 0, 1.0)';
+			
+		if(intervalID) clearInterval(intervalID);
+		intervalID = setInterval(drawItem, TIME_INTERVAL_MS);
+	}
+}
+		
+</script>
+	<style type="text/css">
+	  canvas { border: 1px solid #000000; }
+	</style>
+  </head>
+  <body onload="init()" onresize="init()"> 
+  <canvas id="mycanvas" width="800" height="600"></canvas>  
+  </body>
+</html>
